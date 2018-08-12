@@ -6,8 +6,10 @@ import { LiveServerHelper } from './LiveServerHelper';
 import { StatusbarUi } from './StatusbarUi';
 import { Config } from './Config';
 import { Helper, SUPPRORTED_EXT } from './Helper';
+import { workspaceResolver, setOrChangeWorkspace } from './workspaceResolver';
 
 import * as opn from 'opn';
+import * as ips from 'ips';
 
 export class AppModel {
 
@@ -15,34 +17,45 @@ export class AppModel {
     private IsStaging: boolean;
     private LiveServerInstance;
     private runningPort: number;
+    private localIps: any;
+    private previousWorkspacePath: string;
 
     constructor() {
+        const _ips = ips();
+        this.localIps = _ips.local ? _ips.local : Config.getHost;
         this.IsServerRunning = false;
         this.runningPort = null;
 
-        this.HaveAnySupportedFile(() => {
+        this.haveAnySupportedFile().then(() => {
             StatusbarUi.Init();
         });
-
     }
 
-    public Golive(pathUri?: string) {
+    public async Golive(pathUri?: string) {
 
-        if (!window.activeTextEditor && !workspace.rootPath) {
-            this.showPopUpMsg(`Open a file or folder...`, true);
-            return;
+        // if no folder is opened.
+        if (!workspace.workspaceFolders) {
+            return this.showPopUpMsg(`Open a folder or workspace... (File -> Open Folder)`, true);
         }
 
-        const workspacePath = workspace.rootPath || '';
+        if (!workspace.workspaceFolders.length) {
+            return this.showPopUpMsg(`You've not added any folder in the workspace`, true);
+        }
+
+        const workspacePath = await workspaceResolver(pathUri);
+
+        if (!this.isCorrectWorkspace(workspacePath)) return;
+
         const openedDocUri = pathUri || (window.activeTextEditor ? window.activeTextEditor.document.fileName : '');
-        let pathInfos = Helper.ExtractFilePath(workspacePath, openedDocUri, Config.getRoot);
+        const pathInfos = Helper.testPathWithRoot(workspacePath);
 
         if (this.IsServerRunning) {
-            this.openBrowser(this.runningPort,
-                Helper.getSubPathIfSupported(pathInfos.rootPath, openedDocUri) || '');
-            return;
+            return this.openBrowser(
+                this.runningPort,
+                Helper.getSubPath(pathInfos.rootPath, openedDocUri) || ''
+            );
         }
-        if (pathInfos.HasVirtualRootError) {
+        if (pathInfos.isNotOkay) {
             this.showPopUpMsg('Invaild Path in liveServer.settings.root settings. live Server will serve from workspace root', true);
         }
 
@@ -60,8 +73,10 @@ export class AppModel {
                 this.showPopUpMsg(`Server is Started at port : ${this.runningPort}`);
 
                 if (!Config.getNoBrowser) {
-                    this.openBrowser(this.runningPort,
-                        Helper.getSubPathIfSupported(pathInfos.rootPath, openedDocUri) || '');
+                    this.openBrowser(
+                        this.runningPort,
+                        Helper.getSubPath(pathInfos.rootPath, openedDocUri) || ''
+                    );
                 }
             }
             else {
@@ -89,11 +104,37 @@ export class AppModel {
             this.ToggleStatusBar();
             this.LiveServerInstance = null;
             this.runningPort = null;
+            this.previousWorkspacePath = null;
         });
         this.IsStaging = true;
 
         StatusbarUi.Working('Disposing...');
 
+    }
+
+    changeWorkspaceRoot() {
+        setOrChangeWorkspace()
+            .then(workspceName => {
+                if (workspceName === undefined) return;
+                window.showInformationMessage(`Success! '${workspceName}' workspace is now root of Live Server`);
+                // If server is running, Turn off the server.
+                if (this.IsServerRunning)
+                    this.GoOffline();
+            });
+    }
+
+
+    private isCorrectWorkspace(workspacePath: string) {
+        if (
+            this.IsServerRunning &&
+            this.previousWorkspacePath &&
+            this.previousWorkspacePath !== workspacePath
+        ) {
+            this.showPopUpMsg(`Server is already running from diffrent workspace.`, true);
+            return false;
+        }
+        else this.previousWorkspacePath = workspacePath;
+        return true;
     }
 
     private tagMissedCallback() {
@@ -116,8 +157,8 @@ export class AppModel {
         else if (!Config.getDonotShowInfoMsg) {
             const donotShowMsg = 'Don\'t show again';
             window.showInformationMessage(msg, donotShowMsg)
-                .then(choise => {
-                    if (choise && choise === donotShowMsg) {
+                .then(choice => {
+                    if (choice && choice === donotShowMsg) {
                         Config.setDonotShowInfoMsg(true, true);
                     }
                 });
@@ -138,25 +179,18 @@ export class AppModel {
         this.IsServerRunning = !this.IsServerRunning;
     }
 
-    private HaveAnySupportedFile(callback) {
-        const globFormat = `**/*[${SUPPRORTED_EXT.join(' | ')}]`;
-        workspace.findFiles(globFormat, '**/node_modules/**').then((files) => {
-            if (files && files.length !== 0) {
-                return callback();
-            }
-
-            let textEditor = window.activeTextEditor;
-            if (!textEditor) return;
-
-            // If a HTML file open without Workspace
-            if (workspace.rootPath === undefined && Helper.IsSupportedFile(textEditor.document.fileName)) {
-                return callback();
-            }
+    private haveAnySupportedFile() {
+        return new Promise<void>(resolve => {
+            const globFormat = `**/*[${SUPPRORTED_EXT.join(' | ')}]`;
+            workspace.findFiles(globFormat, '**/node_modules/**', 1)
+                .then(async (files) => {
+                    if (files && files.length) return resolve();
+                });
         });
     }
 
     private openBrowser(port: number, path: string) {
-        const host = Config.getHost;
+        const host = Config.getLocalIp ? this.localIps : Config.getHost;
         const protocol = Config.getHttps.enable ? 'https' : 'http';
 
         let params: string[] = [];
@@ -180,19 +214,19 @@ export class AppModel {
             let CustomBrowser = Config.getCustomBrowser;
             let ChromeDebuggingAttachmentEnable = Config.getChromeDebuggingAttachment;
 
-            if (CustomBrowser && CustomBrowser !== 'null') {
+            if (CustomBrowser && CustomBrowser !== 'null' /*For backward capability*/) {
                 let browserDetails = CustomBrowser.split(':');
                 let browserName = browserDetails[0];
                 params.push(browserName);
 
                 if (browserDetails[1] && browserDetails[1] === 'PrivateMode') {
-                    if (browserName === 'chrome')
+                    if (browserName === 'chrome' || browserName === 'blisk')
                         params.push('--incognito');
                     else if (browserName === 'firefox')
                         params.push('--private-window');
                 }
 
-                if (browserName === 'chrome' && ChromeDebuggingAttachmentEnable) {
+                if ((browserName === 'chrome' || browserName === 'blisk') && ChromeDebuggingAttachmentEnable) {
                     params.push(...[
                         '--new-window',
                         '--no-default-browser-check',
@@ -218,8 +252,7 @@ export class AppModel {
                     params[0] = 'chrome';
 
             }
-        }
-        else if (params[0] && params[0].startsWith('microsoft-edge')) {
+        } else if (params[0] && params[0].startsWith('microsoft-edge')) {
             params[0] = `microsoft-edge:${protocol}://${host}:${port}/${path}`;
         }
 
