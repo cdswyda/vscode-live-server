@@ -96,10 +96,6 @@ export class Helper {
                 mountRule[1] = path.resolve(workspacePath, mountRule[1]);
             }
         });
-<<<<<<< HEAD
-=======
-
->>>>>>> e60663cb3aa42f12f9d5fb45fa4d40bd39b5c9ba
         const file = Config.getFile;
         return {
             port: port,

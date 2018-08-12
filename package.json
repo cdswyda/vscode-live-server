@@ -290,14 +290,11 @@
           "type": "string",
           "default": "",
           "description": "When set, serve this file (server root relative) for every 404 (useful for single-page applications)"
-<<<<<<< HEAD
-=======
         },
         "liveServer.settings.multiRootWorkspaceName": {
           "type": "string",
           "default": null,
           "description": "This the entry point of server when you're in multiroot workspace"
->>>>>>> e60663cb3aa42f12f9d5fb45fa4d40bd39b5c9ba
         }
       }
     }
