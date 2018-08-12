@@ -29,6 +29,10 @@ export class Config {
         return Config.getSettings<string>('host');
     }
 
+    public static get getLocalIp(): string {
+        return Config.getSettings<string>('useLocalIp');
+    }
+
     public static get getPort(): number {
         return Config.getSettings<number>('port');
     }
@@ -97,7 +101,19 @@ export class Config {
         return Config.getSettings<Array<Array<string>>>('mount');
     }
 
+    public static get getShowOnStatusbar(): boolean {
+        return Config.getSettings<boolean>('showOnStatusbar') || false;
+    }
+
     public static get getFile(): string {
         return Config.getSettings<string>('file');
+    }
+
+    public static get getMutiRootWorkspaceName(): string {
+        return Config.getSettings<string>('multiRootWorkspaceName');
+    }
+
+    public static setMutiRootWorkspaceName(val: string) {
+       return Config.configuration.update('multiRootWorkspaceName', val, false);
     }
 }

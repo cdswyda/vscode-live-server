@@ -13,13 +13,14 @@
     <hr>
  
 * **`liveServer.settings.CustomBrowser`:** To change your system's default browser.
-    * _Default value is `"Null"` [String, not `null`]. (It will open your system's default browser.)_
+    * _Default value is `null` ~~[String, not `null`]~~. (It will open your system's default browser.)_
     * *Available Options :*
         * chrome
         * chrome:PrivateMode
         * firefox
         * firefox:PrivateMode
         * microsoft-edge
+        * blisk
 
     _Not enough? need more? open an/a issue/pull request on github. For now, use `liveServer.settings.AdvanceCustomBrowserCmdLine` settings (see below)._
     
@@ -158,4 +159,25 @@
     }
     ```
 
+    <hr>
+
+* **`liveServer.settings.useLocalIp:`** : Use local IP as host.
+    
+    * Default: `false`
+
+    <hr>
+
+* **`liveServer.settings.file:`** : Path to the entry point file. Useful for SPA 
+    
+    * Default: `""`
+
+    <hr>
+
+* **`liveServer.settings.multiRootWorkspaceName:`** : This the entry point of server when you're in multiroot workspace. 
+    
+    * Default: `null`
+
+    * You can change it using Command Palette `ctrl+shift+p` & type `Live Server: Change Live Server workspace`
+    
+    * Tips: You don't need to set this setting, Live Server is smart enough, it'll eigher ask what you want or automatically set the correct workspace if open the server by right clicking any HTML file.    
     <hr>
