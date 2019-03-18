@@ -6,12 +6,10 @@ branches:
       - master
 
 install:
-  - ps: Install-Product node 7.9.0 x64
-
-platform:
-  - x86
+  - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild 10.14)
 
 build_script:
+  - rm -fr package-lock.json
   - npm install
   - npm run vscode:prepublish
 

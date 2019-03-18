@@ -38,7 +38,7 @@
     
     <hr>
  
-* **`liveServer.settings.ChromeDebuggingAttachment`:** To Enable Chrome Debugging Attachment to Live Server. [[Quick Gif Demo](./images/Screenshot/ChromeDebugging.gif)].
+* **`liveServer.settings.ChromeDebuggingAttachment`:** To Enable Chrome Debugging Attachment to Live Server. [[Quick Gif Demo](../images/Screenshot/ChromeDebugging.gif?raw=true)].
     * _**NOTE**: You must have to install [ `Debugger for Chrome.`](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome)_
     
     * _If the value is `true`, Start Live Server and select 'Attach to Chrome' from Debug Window to start debugging. [`Debugger for Chrome`](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) Extension will inject debugging feature into running instance of browser window._
@@ -65,7 +65,8 @@
     [
         ".vscode/**",
         "**/*.scss",
-        "**/*.sass"
+        "**/*.sass",
+        "**/*.ts"
     ]
     ```
     Now, by default Live Server will not track changes of your `.scss` &  `.sass` files. 
@@ -152,8 +153,8 @@
     ```js
     {
         "liveServer.settings.mount:" [
-            ["/", "/path1"]
-            ["/", "/path2"]
+            ["/", "/path1"],
+            ["/", "/path2"],
             ["/root", "/dist"]
         ]
     }

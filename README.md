@@ -1,3 +1,5 @@
+_[I'm sorry but I'm super busy now. If you want to be a maintainer of the project, please feel free to contact me! You've to be passionate about programming]_
+
 # Live Server
 
 **Live Server loves** 💘 **your multi-root workspace**
@@ -63,27 +65,28 @@ All settings are now listed here  [Settings Docs](./docs/settings.md).
 
 ## What's new ?
 
-* ### Version 5.1.1 (20.16.18)
-  * Fixed blank Marketplace's description & changelog Page. 
 
-* ### Version 5.1.0 (20.16.18)
-  * ***[Fixes]*** Few bug fixes for multi-root workspace
+* ### Version 5.5.1 (12.02.19)
+  * ***[Fixes]***  Fixed `Extension host terminated unexpectedly` for MacOS. [[#285](https://github.com/ritwickdey/vscode-live-server/issues/285)]
   
-  * New browser support for *Blisk*  [[#162](https://github.com/ritwickdey/vscode-live-server/pull/162)]
-
-  * Custom browser settings have been updated. (please check the settings page).
-
+* ### Version 5.5.0 (12.02.19)
+  * ***[Fixes]*** Fixed `ignoreFiles` settings [[#255](https://github.com/ritwickdey/vscode-live-server/issues/255)]
+  * Attempt to fix `high cpu load` [[#278](https://github.com/ritwickdey/vscode-live-server/issues/278)]
+  
+* ### Version 5.4.0 (30.01.19)
+  * Bug fix for fsevents on Visual Code Insiders. 
+  
 
 ## Changelog
 To check full changelog [click here](CHANGELOG.md).
 
 
 ## Special Thanks To Maintainers
-A special thanks to [Max Schmitt](https://github.com/mxschmitt)  & [Joydip Roy](https://github.com/rjoydip) for contributing their valueable time on this project.
+A special thanks to [Max Schmitt](https://github.com/mxschmitt), [Joydip Roy](https://github.com/rjoydip) & [Ayo Adesugba](https://github.com/adesugbaa) for contributing their valueable time on this project.
 
 [![Max Schmitt](https://avatars2.githubusercontent.com/u/17984549?s=64)](https://github.com/mxschmitt)
 [![Joydip Roy](https://avatars2.githubusercontent.com/u/15318294?s=64)](https://github.com/rjoydip)
-
+[![Ayo Adesugba](https://avatars2.githubusercontent.com/u/55943?s=64)](https://github.com/adesugbaa)
 
 ## LICENSE
 This extension is licensed under the [MIT License](LICENSE)
